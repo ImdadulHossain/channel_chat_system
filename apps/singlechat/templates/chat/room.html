@@ -1,0 +1,241 @@
+<!-- chat/templates/chat/room.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Chat Room</title>
+
+  <!-- Optional modern font -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg-start:#0f172a; /* slate-900 */
+      --bg-end:#1e293b;   /* slate-800 */
+      --card:#0b1220cc;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --accent:#6366f1;
+      --accent-2:#8b5cf6;
+      --ring:#a78bfa;
+      --shadow:0 20px 40px rgba(0,0,0,.35);
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{
+      height:100%;
+      margin:0;
+      font-family:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--text);
+      background: radial-gradient(1200px 800px at 20% 10%, #111827 0%, transparent 60%),
+                  radial-gradient(1000px 700px at 80% 90%, #0b1220 0%, transparent 55%),
+                  linear-gradient(160deg, var(--bg-start), var(--bg-end));
+      background-attachment: fixed;
+    }
+
+    .wrap{
+      min-height:100%;
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
+
+    .card{
+      width:100%;
+      max-width: 800px;
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:20px;
+      padding:22px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .title{
+      font-size:22px;
+      font-weight:600;
+      letter-spacing:.01em;
+      margin:0;
+    }
+
+    .badge{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      color:#c7d2fe;
+      background:linear-gradient(90deg, rgba(99,102,241,.25), rgba(139,92,246,.25));
+      border:1px solid rgba(167,139,250,.35);
+    }
+
+    #chat-log{
+      width:100%;
+      display:block;
+      border-radius:16px;
+      border:1px solid rgba(148,163,184,.35);
+      background: rgba(15,23,42,.6);
+      color:var(--text);
+      padding:14px;
+      font-size:15px;
+      line-height:1.5;
+      resize: vertical; /* keep user control */
+      outline:none;
+      transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    #chat-log:focus{
+      border-color:var(--ring);
+      box-shadow:0 0 0 4px rgba(167,139,250,.25);
+      background: rgba(15,23,42,.75);
+    }
+
+    .composer{
+      margin-top:12px;
+      display:flex;
+      gap:10px;
+    }
+
+    #chat-message-input{
+      flex:1 1 auto;
+      height:48px;
+      border-radius:14px;
+      border:1px solid rgba(148,163,184,.35);
+      background: rgba(15,23,42,.6);
+      color:var(--text);
+      padding:0 14px;
+      font-size:16px;
+      outline:none;
+      transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    #chat-message-input::placeholder{ color:#94a3b8; }
+    #chat-message-input:focus{
+      border-color:var(--ring);
+      box-shadow:0 0 0 4px rgba(167,139,250,.25);
+      background: rgba(15,23,42,.75);
+    }
+
+    #chat-message-submit{
+      flex:0 0 auto;
+      height:48px;
+      padding:0 18px;
+      border:0;
+      border-radius:14px;
+      font-size:15px;
+      font-weight:600;
+      color:#fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      cursor:pointer;
+      transition: transform .08s ease, filter .15s ease, box-shadow .15s ease;
+      box-shadow:0 8px 18px rgba(99,102,241,.35);
+    }
+    #chat-message-submit:hover{ filter:brightness(1.06); }
+    #chat-message-submit:active{ transform:translateY(1px) scale(.99); }
+
+    .hint{
+      margin-top:10px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg-start:#f8fafc; --bg-end:#eef2f7;
+        --text:#0f172a; --muted:#475569;
+      }
+      .card{ background:#ffffffaa; border-color:rgba(15,23,42,.08); }
+      #chat-log, #chat-message-input{ background:#ffffffd9; color:#0f172a; }
+    }
+
+
+  .composer{
+    margin-top:12px;
+    display:flex;
+    gap:10px;
+    align-items:center;     /* keep the button vertically aligned */
+  }
+
+  /* KEY FIX — allow the text input to shrink inside the flex row */
+  #chat-message-input{
+    flex: 1 1 0%;
+    min-width: 0;           /* <-- prevents overflow caused by size="100" */
+    width: auto;            /* ignore the intrinsic 100ch width */
+  }
+
+  #chat-message-submit{
+    flex: 0 0 auto;
+  }
+
+  /* Optional: on very small screens, stack input + button */
+  @media (max-width: 520px){
+    .composer{ flex-direction: column; }
+    #chat-message-submit{ width: 100%; }
+  }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <h1 class="title">Chat Room</h1>
+        <span class="badge">Live</span>
+      </div>
+
+      <!-- Keep original elements/IDs to preserve behavior -->
+      <textarea id="chat-log" cols="100" rows="20" placeholder="Messages will appear here..."></textarea>
+
+      <div class="composer">
+        <input id="chat-message-input" type="text" size="100" placeholder="Type your message and press Enter">
+        <input id="chat-message-submit" type="button" value="Send">
+      </div>
+
+      <p class="hint">Press <strong>Enter</strong> to send. The connection will use your current host.</p>
+
+      {{ room_name|json_script:"room-name" }}
+    </div>
+  </div>
+
+  <!-- Functionality unchanged -->
+  <script>
+    const roomName = JSON.parse(document.getElementById('room-name').textContent);
+
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/api/'
+        + roomName
+        + '/'
+    );
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        document.querySelector('#chat-log').value += (data.message + '\n');
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    document.querySelector('#chat-message-input').focus();
+    document.querySelector('#chat-message-input').onkeyup = function(e) {
+        if (e.key === 'Enter') {
+            document.querySelector('#chat-message-submit').click();
+        }
+    };
+
+    document.querySelector('#chat-message-submit').onclick = function(e) {
+        const messageInputDom = document.querySelector('#chat-message-input');
+        const message = messageInputDom.value;
+        chatSocket.send(JSON.stringify({ 'message': message }));
+        messageInputDom.value = '';
+    };
+  </script>
+</body>
+</html>
