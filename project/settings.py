@@ -25,9 +25,9 @@ SECRET_KEY = 'django-insecure-n7y4c=kqvpgls2enhgmm99j%_v*vznn$m+^*u2i2d7!z6g%!%4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", ".ngrok-free.app"]
 
-
+CSRF_TRUSTED_ORIGINS = ["https://*.ngrok-free.app"]
 # Application definition
 
 INSTALLED_APPS = [
@@ -76,12 +76,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 ASGI_APPLICATION = "project.asgi.application"
 
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
-    },
+    "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}
 }
 
 
